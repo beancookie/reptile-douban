@@ -1,0 +1,6 @@
+spring:
+  data:
+    elasticsearch:
+      cluster-nodes: 193.112.33.124:9300
+      cluster-name: elasticsearch
+url: https://movie.douban.com/top250
