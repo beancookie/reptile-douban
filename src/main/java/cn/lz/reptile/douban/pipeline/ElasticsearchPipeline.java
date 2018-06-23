@@ -1,6 +1,7 @@
 package cn.lz.reptile.douban.pipeline;
 
 import cn.lz.reptile.douban.config.Contents;
+import cn.lz.reptile.douban.config.ReptileConfig;
 import cn.lz.reptile.douban.entity.Film;
 import cn.lz.reptile.douban.repository.FilmRepository;
 import lombok.extern.slf4j.Slf4j;

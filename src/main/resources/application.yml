@@ -3,4 +3,11 @@ spring:
     elasticsearch:
       cluster-nodes: 193.112.33.124:9300
       cluster-name: elasticsearch
-url: https://movie.douban.com/top250
+
+reptile-config:
+  retry-times: 2
+  time-out: 3000
+  sleep-time: 30000
+  thread-number: 3
+  redis-host: 193.112.33.124
+  start-url: https://movie.douban.com/top250

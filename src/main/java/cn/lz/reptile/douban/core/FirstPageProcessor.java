@@ -1,9 +1,11 @@
 package cn.lz.reptile.douban.core;
 
 import cn.lz.reptile.douban.config.Contents;
+import cn.lz.reptile.douban.config.ReptileConfig;
 import cn.lz.reptile.douban.entity.Film;
-import cn.lz.reptile.douban.repository.FilmRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.*;
 import us.codecraft.webmagic.processor.PageProcessor;
@@ -22,19 +24,19 @@ import java.util.stream.Stream;
 @Component
 @Slf4j
 public class FirstPageProcessor implements PageProcessor {
-    private final FilmRepository filmRepository;
+    @Autowired
+    private ReptileConfig reptileConfig;
 
-    private final Site site = Site.me()
-            .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36")
-            .setRetryTimes(Contents.RETRY_TIME)
-            .setTimeOut(Contents.TIME_OUT)
-            .setSleepTime(Contents.SLEEP_TIME);
-    private static final Set<String> CATEGORYS = Stream.of("剧情,喜剧,动作,爱情,科幻,悬疑,惊悚,恐怖,犯罪,同性,音乐,歌舞,传记,历史,战争,西部,奇幻,冒险,灾难,武侠,情色".split(",")).collect(Collectors.toSet());
-
-
-    public FirstPageProcessor(FilmRepository filmRepository) {
-        this.filmRepository = filmRepository;
+    @Bean
+    public Site siteBean() {
+        return Site.me()
+                .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36")
+                .setRetryTimes(reptileConfig.getRetryTimes())
+                .setTimeOut(reptileConfig.getTimeOut())
+                .setSleepTime(reptileConfig.getSleepTime());
     }
+
+    private static final Set<String> CATEGORIES = Stream.of("剧情,喜剧,动作,爱情,科幻,悬疑,惊悚,恐怖,犯罪,同性,音乐,歌舞,传记,历史,战争,西部,奇幻,冒险,灾难,武侠,情色".split(",")).collect(Collectors.toSet());
 
     @Override
     public void process(Page page) {
@@ -52,7 +54,7 @@ public class FirstPageProcessor implements PageProcessor {
                 info.xpath("//span[3]/span[2]/a").nodes().forEach(node -> film.addAct(node.xpath("//a/text()").get()));
                 info.xpath("//span[@property='v:genre']").nodes().forEach(node -> {
                     String category = node.xpath("//span/text()").get();
-                    if (CATEGORYS.contains(category)) {
+                    if (CATEGORIES.contains(category)) {
                         film.addCategory(category);
                     }
                 });
@@ -76,7 +78,7 @@ public class FirstPageProcessor implements PageProcessor {
                 log.error("exception: {}", e.getMessage());
             }
             if (film.getTitle() != null && !"".equals(film.getTitle())) {
-                log.info("film: {}", film);
+                log.info("film: {}", film.getTitle());
                 films.add(film);
             }
         }
@@ -87,6 +89,6 @@ public class FirstPageProcessor implements PageProcessor {
 
     @Override
     public Site getSite() {
-        return site;
+        return siteBean();
     }
 }
